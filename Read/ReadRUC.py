@@ -11,7 +11,6 @@ def ReadRUC(content):
     """
     
     # Import Modules
-    import cv2
     import numpy as np
 
     # Separate into lines
