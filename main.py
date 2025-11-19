@@ -26,7 +26,7 @@ st.title("NASMAT RUC Generator")
 st.markdown('The NASMAT RUC Generator is used to generate and visualize microstructres and corersponding *RUC files compatible with the NASA Mulitscale Analysis Tool (NASMAT). \n \n')
 
 # Create tabs
-tab1, tab2 = st.tabs(["Generator", "Visualiser"])
+tab1, tab2 = st.tabs(["Generator", "Visualizer"])
 
 with tab1:
     # Create Header
