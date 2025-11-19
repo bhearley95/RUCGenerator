@@ -313,15 +313,15 @@ with tab2:
                 st.error("Error reading CSV file. Please ensure it is formatted correctly.")
 
         else:
-            try:
+            #try:
                 mask, out, msg = ReadRUC(content)
                 if msg != "":
                     st.error(msg)
                 else:
                     st.session_state['mask_Viz'] = mask
                     flag = 1
-            except:
-                st.error("Error reading *mac/*txt file. Please ensure it is formatted correctly and that the RUC is 2D.")
+            #except:
+            #    st.error("Error reading *mac/*txt file. Please ensure it is formatted correctly and that the RUC is 2D.")
 
         # Display RUC
         if flag == 1:
