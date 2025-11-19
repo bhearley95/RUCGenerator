@@ -20,10 +20,10 @@ from Read.ReadRUC import ReadRUC
 st.set_page_config(layout="wide")
 
 # Create the title
-st.title("NASMAT RUC Generator")
+st.title("2D NASMAT RUC Generator")
 
 # Create instructions
-st.markdown('The NASMAT RUC Generator is used to generate and visualize microstructres and corersponding *RUC files compatible with the NASA Mulitscale Analysis Tool (NASMAT). \n \n')
+st.markdown('The 2D NASMAT RUC Generator is used to generate and visualize microstructres and corersponding *RUC files compatible with the NASA Mulitscale Analysis Tool (NASMAT). \n \n')
 
 # Create tabs
 tab1, tab2 = st.tabs(["Generator", "Visualizer"])
@@ -318,7 +318,7 @@ with tab2:
                 st.session_state['mask_Viz'] = mask
                 flag = 1
             except:
-                st.error("Error reading *mac/*txt file. Please ensure it is formatted correctly.")
+                st.error("Error reading *mac/*txt file. Please ensure it is formatted correctly and that the RUC is 2D.")
 
         # Display RUC
         if flag == 1:
