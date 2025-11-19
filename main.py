@@ -385,8 +385,8 @@ with tab2:
 
                 # Create table with actual microstructure properties
                 with col11:
-                    data = {'Property':['VF', 'R', 'NB', 'NG'],
-                            'Value':[out['VF'], out['R'], out['NB'], out['NG']]}
+                    data = {'Property':['VF', 'NB', 'NG'],
+                            'Value':[out['VF'], out['NB'], out['NG']]}
                     df = pd.DataFrame(data)
                     st.dataframe(df) 
 
