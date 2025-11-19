@@ -1,10 +1,10 @@
-def Hex3(NB, R, F, M):
+def Square1(VF, NB, F, M):
     """
-    Generate a hexagonal pack microstructure by defining the subcell width and radius in subcells.
+    Generate a square pack microstructure by defining the volume fraction and subcell dimensions.
 
     Arguments:
+        VF  float   desired volume fraction
         NB  int     number of subcells in the beta direction
-        R   float   radius of the fiber in subcells
         F   int     material ID of the fiber
         M   int     material ID of the matrix
 
@@ -12,31 +12,19 @@ def Hex3(NB, R, F, M):
         mask    2D array    integer array defining the microstructure
         out     dict        dictionary of actual microstructure properties
     """
-
-    # Import modules
+    # Import Modules
     import numpy as np
 
-    # Enforce minimum NB
-    if NB <= 2*R:
-        NB = int(1.05*2*R)
-
-    # Enforce NB be even
+    # Force even number of subcells
     nx = NB
     if nx % 2 != 0:
         nx -= 1
-    ny = 2 * round((np.sqrt(3) * nx) / 2)  # nearest integer for aspect ratio
+    ny = NB
+    center = [nx/2, ny/2]
 
+    # Fiber radius
+    R = np.sqrt(nx**2 * VF / (np.pi))
     
-    # Define Circle Centers
-    centers = [
-                [0,0],
-                [0, ny],
-                [nx, 0],
-                [nx, ny],
-                [nx/2, ny/2],
-            ]
-
-
     # Define Bounding Box
     xmin = 0
     xmax = nx
@@ -59,9 +47,8 @@ def Hex3(NB, R, F, M):
     mask = M * np.ones((ny, nx), dtype=int)
 
     # Fill fibers
-    for c in centers:
-        inside = (X - c[0])**2 + (Y - c[1])**2 <= R**2
-        mask[inside] = F
+    inside = (X - center[0])**2 + (Y - center[1])**2 <= R**2
+    mask[inside] = F
 
     # Calculate actual values
     out = {
@@ -80,7 +67,7 @@ def Hex3(NB, R, F, M):
     out['R'] = np.sum(mask[:,int(nx/2)] == F)/2
 
     # Calculate subcell dimensions
-    out['NB'] = nx
-    out['NG'] = ny
+    out['NB'] = len(mask[0])
+    out['NG'] = len(mask)
 
     return mask, out

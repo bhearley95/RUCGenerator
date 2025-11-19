@@ -1,8 +1,5 @@
 # Import Modules
 import math
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -11,39 +8,42 @@ import streamlit as st
 from Hexagonal.Hex1 import Hex1
 from Hexagonal.Hex2 import Hex2
 from Hexagonal.Hex3 import Hex3
+from Square.Square1 import Square1
+from Square.Square2 import Square2
+from Square.Square3 import Square3
 from Write.WriteCSV import WriteCSV
 from Write.WriteRUC import WriteRUC
-
 
 # Set the page configuration
 st.set_page_config(layout="wide")
 
-# Create the Title
+# Create the title
 st.title("NASMAT RUC Generator")
 
-# Create Instructions
+# Create instructions
 st.markdown('The NASMAT RUC Generator is used to generate and visualize microstructres and corersponding *RUC files compatible with the NASA Mulitscale Analysis Tool (NASMAT). \n \n')
 st.markdown('''---''')
 
-# Initialize Data
+# Initialize the function
 func = None
 
-# Create columns
+# Create columns for microstructure and definition selection
 col1, col2 = st.columns([1, 1])
 
-# Select the desired micro structure
+# Create input for microstructure type
 with col1:
     micro_opt = st.selectbox(
             "Select a microstructure:",
             [
             "Hexagonal", 
-            #"Square",
+            "Square",
             ]
         )
 
 # Select definition option
 if micro_opt == "Hexagonal":
-    # Create default values
+
+    # -- Create default values
     def_vals = {
             'VF':[1, 'float', 0.001, 0., math.pi / (2*math.sqrt(3)), 0.6],
             'R':[2, 'float', 0.001, 0., None, 10.],
@@ -53,7 +53,7 @@ if micro_opt == "Hexagonal":
             'M':[2,'int', 1, 1, None, 2],
             }
 
-    # Create defintion list
+    # -- Create defintion list
     def_list = {"Volume Fraction & Subcell Dimensions":{
                                                         'Inputs':['VF','NB','F','M'],
                                                         'Function':Hex1
@@ -67,62 +67,123 @@ if micro_opt == "Hexagonal":
                                                 'Function':Hex3
                                                 }, 
                 }
-else:
-    def_list = []
+    
+elif micro_opt == "Square":
+    
+    # -- Create default values
+    def_vals = {
+            'VF':[1, 'float', 0.001, 0., math.pi / 4, 0.6],
+            'R':[2, 'float', 0.001, 0., None, 10.],
+            'NB':[1, 'int', 1, 1, None, 10],
+            'NG':[2, 'int', 1, 1, None, 10],
+            'F':[1,'int', 1, 1, None, 1],
+            'M':[2,'int', 1, 1, None, 2],
+            }
 
+    # -- Create defintion list
+    def_list = {"Volume Fraction & Subcell Dimensions":{
+                                                        'Inputs':['VF','NB','F','M'],
+                                                        'Function':Square1
+                                                        }, 
+                "Volume Fraction & Radius":{
+                                            'Inputs':['VF','R','F','M'],
+                                            'Function':Square2
+                                            }, 
+                "Radius & Subcell Dimensions":{
+                                                'Inputs':['R','NB','F','M'],
+                                                'Function':Square3
+                                                }, 
+                }
+    
+else:
+    def_list = {}
+
+# Create definition selection
 with col2:
     def_opt = st.selectbox("Select an input type:", list(def_list.keys()))
 
+# Create input selection area
+st.markdown('''---''')
+
 # Create user inputs
 if def_opt:
-    num_inputs = len(def_list[def_opt]['Inputs'])
+
+    # Get the function and initalize values
     func = def_list[def_opt]['Function']
     values = {}
 
-    # Create the numeric inputs
+    # Separeate numeric inputs into two columns
     col3, col4 = st.columns([1, 1])
 
+    # Create numeric inputs
     for key in def_vals.keys():
+
+        # -- Determine column
         if def_vals[key][0] == 1:
             colnum = col3
         else:
             colnum = col4
 
+        # -- Create the input
         with colnum:
 
+            # -- Only initialize if it doesn't exist yet
             if f"num_input_{key}" not in st.session_state:
                 st.session_state[f"num_input_{key}"] = def_vals[key][5]
 
             if key in def_list[def_opt]['Inputs']:
-                if st.session_state[f"num_input_{key}"] == None:
+
+                # -- Set default value if previous was none
+                if st.session_state[f"num_input_{key}"] is None:
                     st.session_state[f"num_input_{key}"] = def_vals[key][5]
-                values[key] = st.number_input(key, 
-                                        step = def_vals[key][2], 
-                                        min_value = def_vals[key][3], 
-                                        max_value = def_vals[key][4], 
-                                        key = f"num_input_{key}"
-                                    )
+
+                # -- Clamp previous value so it's within new min/max
+                val = st.session_state[f"num_input_{key}"]
+                try:
+                    val = max(def_vals[key][3], min(def_vals[key][4], val))
+                except:
+                    pass
+
+                # -- Pass the clamped value as value= to prevent reset
+                values[key] = st.number_input(
+                    key,
+                    key=f"num_input_{key}",
+                    value=val,
+                    step=def_vals[key][2],
+                    min_value=def_vals[key][3],
+                    max_value=def_vals[key][4]
+                )
+
             else:
+                # -- Remove existing value
                 st.session_state[f"num_input_{key}"] = None
-                values[key] = st.number_input(key, 
+
+                # -- Create the disabled input
+                values[key] = st.number_input(
+                                        key, 
                                         step = def_vals[key][2], 
                                         min_value = def_vals[key][3], 
                                         max_value = def_vals[key][4], 
                                         key = f"num_input_{key}",
                                         disabled=True
-                                )
+                                    )
+                
 
+# Generate and display the RUC
 if func is not None:
 
-    # Create columns
+    # -- Create columns for organization
     col5, col6, col7, col8, col9 = st.columns([1, 1, 1, 1, 7])
 
+    # -- Create the generate RUC button
     with col5:
         generate_clicked = st.button("Generate RUC", key = 'Gen_Button')
 
+    # -- Create the gridline checkbox
     with col6:
         show_grid = st.checkbox("Show Grid Lines", value=True, key='Grid_Check')
 
+    # -- Create fiber and matrix color selectors
     with col7:
         if 'fiber_color' not in st.session_state:
             st.session_state['fiber_color'] = 'blue'
@@ -178,13 +239,14 @@ if func is not None:
             margin=dict(l=0, r=0, t=0, b=0)
         )
 
-        # Create columns
+        # Create columns for visualalization and data
         col10, col11, col12 = st.columns([1, 1, 4])
 
+        # Display the microstruture
         with col10:
-            # Display in Streamlit
             st.plotly_chart(fig, width='content')
 
+        # Create table with actual microstructure properties
         with col11:
             data = {'Property':['VF', 'R', 'NB', 'NG'],
                     'Value':[out['VF'], out['R'], out['NB'], out['NG']]}
@@ -195,7 +257,10 @@ if func is not None:
         csv_data = WriteCSV(mask)
         ruc_data = WriteRUC(mask)
 
+        # Create columns for downloading data
         col13, col14, col15 = st.columns([1, 1, 9])
+
+        # Download to CSV
         with col13:
             st.download_button(
                 label="Download  CSV",
@@ -204,6 +269,7 @@ if func is not None:
                 mime="text/csv"
             )
 
+        # Download for *RUC
         with col14:
             st.download_button(
             label="Download *RUC File",

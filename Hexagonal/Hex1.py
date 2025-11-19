@@ -7,6 +7,10 @@ def Hex1(VF, NB, F, M):
         NB  int     number of subcells in the beta direction
         F   int     material ID of the fiber
         M   int     material ID of the matrix
+
+    Outputs:
+        mask    2D array    integer array defining the microstructure
+        out     dict        dictionary of actual microstructure properties
     """
     # Import Modules
     import numpy as np
@@ -15,10 +19,12 @@ def Hex1(VF, NB, F, M):
     nx = NB
     if nx % 2 != 0:
         nx -= 1
-    ny = 2 * round((np.sqrt(3) * nx) / 2)  # nearest integer for aspect ratio
+
+    # Round to nearest integer for aspect ratio
+    ny = 2 * round((np.sqrt(3) * nx) / 2)  
 
     # Fiber radius
-    Radf = np.sqrt(((ny*ny/np.sqrt(3))*VF)/(2*np.pi))
+    R = np.sqrt(((ny*ny/np.sqrt(3))*VF)/(2*np.pi))
 
     # Base subcell (half RUC)
     base = M * np.ones((nx//2, ny//2), dtype=int)
@@ -29,7 +35,7 @@ def Hex1(VF, NB, F, M):
             y = j + 0.5
             dist = np.sqrt(x**2 + y**2)
             dist2 = np.sqrt((nx/2 - x)**2 + (ny/2 - y)**2)
-            if dist <= Radf or dist2 <= Radf:
+            if dist <= R or dist2 <= R:
                 base[i, j] = F
 
     # Mirror to create full RUC

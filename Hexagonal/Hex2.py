@@ -7,24 +7,27 @@ def Hex2(VF, R, F, M):
         R   float   radius of the fiber in subcells
         F   int     material ID of the fiber
         M   int     material ID of the matrix
+
+    Outputs:
+        mask    2D array    integer array defining the microstructure
+        out     dict        dictionary of actual microstructure properties
     """
 
     # Import modules
-    import math
     import numpy as np
 
     # Calculate the spacing vector length
-    n = math.sqrt((2*math.pi*R**2)/(VF*math.sqrt(3)))
+    n = np.sqrt((2*np.pi*R**2)/(VF*np.sqrt(3)))
     nx = n*1/2
-    ny = n*math.sqrt(3)/2
+    ny = n*np.sqrt(3)/2
 
     # Define Circle Centers
     centers = [
                 [0,0],
-                [n*1/2, n*math.sqrt(3)/2],
-                [n*-1/2,n* math.sqrt(3)/2],
-                [n*1/2, n*-math.sqrt(3)/2],
-                [n*-1/2,n* -math.sqrt(3)/2],
+                [n*1/2, n*np.sqrt(3)/2],
+                [n*-1/2,n* np.sqrt(3)/2],
+                [n*1/2, n*-np.sqrt(3)/2],
+                [n*-1/2,n* -np.sqrt(3)/2],
             ]
     for i, center in enumerate(centers):
         centers[i] = np.array(center) + np.array([nx, ny])
@@ -41,7 +44,6 @@ def Hex2(VF, R, F, M):
 
     dx = (xmax - xmin) / nx
     dy = (ymax - ymin) / ny
-
 
     # Create subcell centers
     xs = xmin + (np.arange(nx) + 0.5) * dx

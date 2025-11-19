@@ -1,6 +1,6 @@
-def Hex3(NB, R, F, M):
+def Square3(NB, R, F, M):
     """
-    Generate a hexagonal pack microstructure by defining the subcell width and radius in subcells.
+    Generate a square pack microstructure by defining the subcell width and radius in subcells.
 
     Arguments:
         NB  int     number of subcells in the beta direction
@@ -24,18 +24,8 @@ def Hex3(NB, R, F, M):
     nx = NB
     if nx % 2 != 0:
         nx -= 1
-    ny = 2 * round((np.sqrt(3) * nx) / 2)  # nearest integer for aspect ratio
-
-    
-    # Define Circle Centers
-    centers = [
-                [0,0],
-                [0, ny],
-                [nx, 0],
-                [nx, ny],
-                [nx/2, ny/2],
-            ]
-
+    ny = nx
+    center = [nx/2, ny/2]
 
     # Define Bounding Box
     xmin = 0
@@ -59,9 +49,8 @@ def Hex3(NB, R, F, M):
     mask = M * np.ones((ny, nx), dtype=int)
 
     # Fill fibers
-    for c in centers:
-        inside = (X - c[0])**2 + (Y - c[1])**2 <= R**2
-        mask[inside] = F
+    inside = (X - center[0])**2 + (Y - center[1])**2 <= R**2
+    mask[inside] = F
 
     # Calculate actual values
     out = {
