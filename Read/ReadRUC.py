@@ -13,6 +13,9 @@ def ReadRUC(content):
     # Import Modules
     import numpy as np
 
+    # Initialize message
+    msg = ""
+
     # Separate into lines
     lines = content.strip().splitlines()
 
@@ -28,6 +31,36 @@ def ReadRUC(content):
             if "*" in line:
                 end_line = i
                 break
+
+    if flag == 0:
+        msg = msg + "No *RUC section found in the file."
+        return None, None, msg
+    
+    # Check for 2D RUC
+    is_2D = False
+    for i in range(start_line, end_line):
+        if "MOD=" in lines[i]:
+            ndim = int(lines[i].split('MOD=')[1].split()[0][-1])
+            if ndim == 2:
+                is_2D = True
+            break
+
+    if not is_2D:
+        msg = msg + "The RUC defined in the file is not 2D."
+        return None, None, msg
+    
+    # Check for ARCHID = 99
+    is_99 = False
+    for i in range(start_line, end_line):
+        if "ARCHID=" in lines[i]:
+            archid = int(lines[i].split('ARCHID=')[1].split()[0])
+            if archid == 99:
+                is_99 = True
+            break
+
+    if not is_99:
+        msg = msg + "The RUC defined in the file is not ARCHID = 99."
+        return None, None, msg
 
     # Get subcells dimensions
     H = ''
@@ -111,4 +144,4 @@ def ReadRUC(content):
     out['NB'] = nx
     out['NG'] = ny
 
-    return mask, out
+    return mask, out, msg
