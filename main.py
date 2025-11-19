@@ -115,13 +115,31 @@ if def_opt:
 if func is not None:
 
     # Create columns
-    col5, col6, col7 = st.columns([1, 1, 9])
+    col5, col6, col7, col8, col9 = st.columns([1, 1, 1, 1, 7])
 
     with col5:
         generate_clicked = st.button("Generate RUC", key = 'Gen_Button')
 
     with col6:
         show_grid = st.checkbox("Show Grid Lines", value=True, key='Grid_Check')
+
+    with col7:
+        if 'fiber_color' not in st.session_state:
+            st.session_state['fiber_color'] = 'blue'
+        fib_color = st.selectbox(
+                "Fiber Color",
+                ["white", "black", "red", "green", "blue", "yellow", "purple"],
+                key = 'fiber_color'
+            )
+        
+    with col8:
+        if 'matrix_color' not in st.session_state:
+            st.session_state['matrix_color'] = 'red'
+        mat_color = st.selectbox(
+                "Matrix Color",
+                ["white", "black", "red", "green", "blue", "yellow", "purple"],
+                key = 'matrix_color'
+            )
 
     # If generate is clicked, run function and save mask in session_state
     if generate_clicked:
@@ -147,7 +165,7 @@ if func is not None:
         # Create Plotly figure
         fig = go.Figure(data=go.Heatmap(
             z=mask,
-            colorscale=[[0, 'blue'], [1, 'red']],
+            colorscale=[[0, st.session_state['fiber_color']], [1, st.session_state['matrix_color']]],
             showscale=False,
             xgap=xgap,
             ygap=ygap
@@ -161,13 +179,13 @@ if func is not None:
         )
 
         # Create columns
-        col8, col9, col10 = st.columns([1, 1, 4])
+        col10, col11, col12 = st.columns([1, 1, 4])
 
-        with col8:
+        with col10:
             # Display in Streamlit
             st.plotly_chart(fig, width='content')
 
-        with col9:
+        with col11:
             data = {'Property':['VF', 'R', 'NB', 'NG'],
                     'Value':[out['VF'], out['R'], out['NB'], out['NG']]}
             df = pd.DataFrame(data)
@@ -177,8 +195,8 @@ if func is not None:
         csv_data = WriteCSV(mask)
         ruc_data = WriteRUC(mask)
 
-        col11, col12, col13 = st.columns([1, 1, 9])
-        with col11:
+        col13, col14, col15 = st.columns([1, 1, 9])
+        with col13:
             st.download_button(
                 label="Download  CSV",
                 data=csv_data,
@@ -186,7 +204,7 @@ if func is not None:
                 mime="text/csv"
             )
 
-        with col12:
+        with col14:
             st.download_button(
             label="Download *RUC File",
             data=ruc_data,
