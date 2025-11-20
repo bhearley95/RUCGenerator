@@ -275,7 +275,8 @@ with tab1:
                     label="Download  CSV",
                     data=csv_data,
                     file_name="ruc.csv",
-                    mime="text/csv"
+                    mime="text/csv",
+                    key="download_csv"
                 )
 
             # Download for *RUC
@@ -284,7 +285,8 @@ with tab1:
                 label="Download *RUC File",
                 data=ruc_data,
                 file_name="ruc_data.txt",
-                mime="text/plain"
+                mime="text/plain",
+                key="download_ruc"
             )
                 
 with tab2:
@@ -404,7 +406,8 @@ with tab2:
                         label="Download CSV",
                         data=csv_data,
                         file_name="ruc.csv",
-                        mime="text/csv"
+                        mime="text/csv",
+                        key = "download_csv_viz"
                     )
 
                 # Download for *RUC
@@ -413,7 +416,8 @@ with tab2:
                     label="Download *RUC File",
                     data=ruc_data,
                     file_name="ruc_data.txt",
-                    mime="text/plain"
+                    mime="text/plain",
+                    key="download_ruc_viz"
                 )
 
    
